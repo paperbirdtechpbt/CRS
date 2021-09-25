@@ -1,0 +1,183 @@
+﻿@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer localizer
+@{
+	ViewData["Title"] = @localizer["Case Details"];
+
+}
+
+<!-- Content Header (Page header) -->
+<section class="content-header">
+
+ <div class="container-fluid">
+  <div class="row mb-2">
+   <div class="col-sm-6">
+	<h1>@localizer["Case Details"]</h1>
+   </div>
+   <div class="col-sm-6">
+	<ol class="breadcrumb float-sm-right">
+	 <li class="breadcrumb-item"><a href="#">@localizer["Home"]</a></li>
+	 <li class="breadcrumb-item active">@localizer["Case Details"]</li>
+	</ol>
+   </div>
+  </div>
+ </div><!-- /.container-fluid -->
+</section>
+
+<!-- Main content -->
+<section class="content">
+
+ <div class="container-fluid">
+  <div class="card">
+   <div class="card-header">
+	<h3 class="card-title">@localizer["All Case Data"]</h3>
+	<button type="button" class="float-right btn btn-success" onclick="redirect()">@localizer["Add Case"]</button>
+   </div>
+   <!-- /.card-header -->
+   <div class="card-body">
+	<table id="example1" class="table table-bordered table-striped">
+	</table>
+   </div>
+   <div class="overlay" id="overlay"><i class="fas fa-2x fa-sync-alt fa-spin"></i></div>
+  </div>
+ </div>
+ <!-- /.container-fluid -->
+</section>
+<!-- /.content -->
+@section Scripts {
+
+<script>
+	var x = document.getElementById("overlay");
+		function redirect() {
+			window.location.replace('/Crime/AddCrime');
+		}
+
+		$(document).ready(function () {
+
+			//alert('hi');
+			GetCaseData();
+		});
+
+		function GetCaseData() {
+
+			document.getElementById("example1").innerHTML = '';
+
+			$.ajax({
+				type: "POST",
+				url: 'GetCaseData',
+				dataSrc: '',
+				success: function (response) {
+					var tabledata;
+					tabledata += '<thead><tr>';
+					tabledata += '<th>@localizer["Crime Type"]</th>';
+					tabledata += '<th>@localizer["Case Number"]</th>';
+					tabledata += '<th>@localizer["Complainer Name"]</th>';
+					tabledata += '<th>@localizer["Complainer Contact No"]</th>';
+					//tabledata += '<th>Complainer Address</th>';
+					tabledata += '<th>@localizer["Status"]</th>';
+					tabledata += '<th>@localizer["Action"]</th>';
+					tabledata += '</tr></thead>';
+
+					tabledata += '<tbody>';
+					//var ddlCaseType = document.getElementById('ddlCaseType');
+					for (var i = 0; i < response.length; i++) {
+
+						tabledata += '<tr>';
+						tabledata += '<td>' + response[i].crimeName + '</td>';
+						tabledata += '<td>' + response[i].caseNo + '</td>';
+						tabledata += '<td>' + response[i].complainerName + '</td>';
+						tabledata += '<td>' + response[i].complainerContactNo + '</td>';
+						//tabledata += '<td>' + response[i].complainerAddress + '</td>';
+						if(response[i].mstStatusId == 1){
+						tabledata += '<td><span class="badge bg-primary">' + response[i].mstStatus + '</span></td>';
+						}
+						if(response[i].mstStatusId == 2){
+						tabledata += '<td><span class="badge bg-warning">' + response[i].mstStatus + '</span></td>';
+						}
+						if(response[i].mstStatusId == 3){
+						tabledata += '<td><span class="badge bg-success">' + response[i].mstStatus + '</span></td>';
+						}
+						tabledata += '<td><button type="button" class="btn btn-default btn-sm" onclick="Actionfunc(' + response[i].id + ',1)"><i class="far fa-eye"></i></button><button type="button" class="btn btn-default btn-sm" onclick="Actionfunc(' + response[i].id + ',2)"><i class="nav-icon fas fa-edit"></i></button><button type="button" class="btn btn-default btn-sm" onclick="Actionfunc(' + response[i].id + ',3)"><i class="far fa-trash-alt"></i></button></td>';
+						tabledata += '</tr>';
+					}
+					tabledata += '</tbody>';
+
+					tabledata += '<tfoot><tr>';
+					tabledata += '<th>@localizer["Crime Type"]</th>';
+					tabledata += '<th>@localizer["Case Number"]</th>';
+					tabledata += '<th>@localizer["Complainer Name"]</th>';
+					tabledata += '<th>@localizer["Complainer Contact No"]</th>';
+					//tabledata += '<th>Complainer Address</th>';
+					tabledata += '<th>@localizer["Status"]</th>';
+					tabledata += '<th>@localizer["Action"]</th>';
+					tabledata += '</tr></tfoot>';
+					$("#example1").append(tabledata);
+
+					$("#example1").DataTable({
+						"bDestroy": true,
+						"language": { "emptyTable": '@localizer["No data available in tablesd"]',"zeroRecords": '@localizer["No matching records found"]', "search": '@localizer["search:"]',"info": '@localizer["Showing"] _START_ @localizer["to"] _END_ @localizer["of"]  _TOTAL_ @localizer["entries"]',paginate: { next: '@localizer["Next"]', previous: '@localizer["Previous"]' } },
+						"responsive": true, "lengthChange": false, "autoWidth": false,
+						"buttons": [{ extend: "copy", text: '@localizer["Copy"]' }, { extend: "csv", text: '@localizer["CSV"]' }, { extend: "excel", text: '@localizer["Excel"]' }, { extend: "pdf", text: '@localizer["PDF"]' }, { extend: "print", text: '@localizer["Print"]' }, { extend: "colvis", text: '@localizer["Column visibility"]' }]
+					}).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+
+					 x.style.display = "none";
+				},
+				error: function (xhr, status, error) {
+					// var err = eval("(" + xhr.responseText + ")");
+					console.log(xhr.responseText);
+				}
+			});
+		}
+
+		function Actionfunc(id,type) {
+			if(type==1){
+				//alert(type);
+				window.location.replace('/Crime/ViewCaseDetails?Id='+id+'');
+			}
+			if(type==2){
+				alert(type);
+			}
+			//for delete data
+			if(type==3){
+					  var txt;
+					  var r = confirm("Are you sure for delete!!");
+					  if (r == true) {
+						$.ajax({
+								type: "POST",
+								data: {
+									"id": id
+								},
+								url: 'DeleteMSTCase',
+								dataSrc: '',
+								success: function (response) {
+
+								if(response == 1)
+								{
+									alert("Record is Deleted");
+
+									GetCaseData();
+
+								}
+								else{
+									alert("Record is not Deleted");
+								}
+
+								},
+								error: function (xhr, status, error) {
+									// var err = eval("(" + xhr.responseText + ")");
+									console.log(xhr.responseText);
+								}
+							});
+
+					  } else {
+						txt = "You pressed Cancel!";
+					  }
+			//alert(type);
+			}
+		//alert(id);
+		//alert(type);
+		}
+</script>
+}
+
+
+
+

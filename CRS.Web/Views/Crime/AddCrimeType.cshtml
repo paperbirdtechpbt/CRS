@@ -1,0 +1,146 @@
+﻿@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer localizer
+@{
+	ViewData["Title"] = @localizer["Add Crime Type"];
+
+}
+
+<!-- Content Header (Page header) -->
+<section class="content-header">
+ <div class="container-fluid">
+  <div class="row mb-2">
+   <div class="col-sm-6">
+	<h1>@localizer["Crime Type Form"]</h1>
+   </div>
+   <div class="col-sm-6">
+	<ol class="breadcrumb float-sm-right">
+	 <li class="breadcrumb-item"><a href="#">@localizer["Home"]</a></li>
+	 <li class="breadcrumb-item active">@localizer["Add Crime Type"]</li>
+	</ol>
+   </div>
+  </div>
+ </div><!-- /.container-fluid -->
+</section>
+
+<!-- Main content -->
+<section class="content">
+
+ <div class="container-fluid">
+
+  <!-- SELECT2 EXAMPLE -->
+  <div class="card card-default">
+   <div class="card-header">
+	<h3 class="card-title">@localizer["Add Crime Type"]</h3>
+
+	<div class="card-tools">
+
+	 <button type="button" class="btn btn-tool" data-card-widget="remove" onclick="redirectfunc()">
+	  <i class="fas fa-times"></i>
+	 </button>
+	</div>
+   </div>
+   <!-- /.card-header -->
+   <div class="card-body">
+	<div class="col-md-6">
+	 <div class="form-group">
+	  <div class="form-group">
+	   <label>@localizer["Crime Type Name"]</label>
+	   <input type="text" class="form-control" id="txtcrimetypename">
+	  </div>
+	 </div>
+	</div>
+
+   </div>
+   <div class="card-footer">
+	<button type="button" id="btnsubmit" class="float-right btn btn-success" onclick="submitfunc()">@localizer["Submit"]</button>
+   </div>
+
+  </div>
+  <!-- /.card-body -->
+
+ </div>
+ <!-- /.card -->
+ 
+ <!-- /.container-fluid -->
+
+</section>
+<!-- /.content -->
+@section Scripts {
+
+
+<script>
+		const urlSearchParams = new URLSearchParams(window.location.search);
+		const params = Object.fromEntries(urlSearchParams.entries());
+		var paramId = params.Id;
+	$(document).ready(function () {
+		//alert(paramId);
+
+
+		if(paramId != undefined)
+		{
+		viewfunc();
+	}
+	else{paramId = 0;}
+	});
+
+	function viewfunc(){
+	$.ajax({
+			url: "GetCrimeTypeData",
+			data: {
+				"id": paramId
+			},
+			cache: false,
+			type: "POST",
+			success: function (response) {
+			//alert(response[0].crimeName);
+			$("#txtcrimetypename").val(response[0].crimeName);
+				//document.getElementById("txtcrimetypename").value(response[0].crimeName)
+			},
+			error: function (xhr, status, error) {
+				// var err = eval("(" + xhr.responseText + ")");
+				console.log(xhr.responseText);
+			}
+		});
+	}
+
+	function submitfunc() {
+		//alert(paramId);
+		$.ajax({
+			url: "InsertMSTCrimeType",
+			data: {
+				"CrimeName": document.getElementById("txtcrimetypename").value,
+				"id":paramId
+			},
+			cache: false,
+			type: "POST",
+			success: function (response) {
+				if(response == 1){
+					if(paramId == 0){
+					 toastr.success('Crime Type Added');
+				 }
+				 else{
+					 toastr.success('Crime Type Updated');
+					 window.location.replace('/Crime/ViewCrimeType');
+				}
+				//alert("Case Added ");
+				}
+				else{
+					toastr.error('Record is not Inserted');
+					//alert("Record is not Deleted");
+					}
+
+			},
+			error: function (xhr, status, error) {
+				// var err = eval("(" + xhr.responseText + ")");
+				console.log(xhr.responseText);
+			}
+		});
+	}
+	function redirectfunc(){
+		window.location.replace('/Crime/ViewCrimeType');
+	}
+</script>
+}
+
+
+
+

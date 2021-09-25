@@ -1,0 +1,333 @@
+﻿@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer localizer
+@{
+	ViewData["Title"] = @localizer["Add Crime Head"];
+
+}
+
+<!-- Content Header (Page header) -->
+<section class="content-header">
+ <div class="container-fluid">
+  <div class="row mb-2">
+   <div class="col-sm-6">
+	<h1>@localizer["Crime Head Form"]</h1>
+   </div>
+   <div class="col-sm-6">
+	<ol class="breadcrumb float-sm-right">
+	 <li class="breadcrumb-item"><a href="#">@localizer["Home"]</a></li>
+	 <li class="breadcrumb-item active">@localizer["Add Crime Head"]</li>
+	</ol>
+   </div>
+  </div>
+ </div><!-- /.container-fluid -->
+</section>
+
+<!-- Main content -->
+<section class="content">
+
+ <div class="container-fluid">
+
+  <!-- SELECT2 EXAMPLE -->
+  <div class="card card-default">
+   <div class="card-header">
+	<h3 class="card-title">@localizer["Add Crime Head"]</h3>
+
+	<div class="card-tools">
+	 <button type="button" class="btn btn-tool" onclick="redirectfunc()" data-card-widget="remove">
+	  <i class="fas fa-times"></i>
+	 </button>
+	</div>
+   </div>
+   <!-- /.card-header -->
+   <div class="card-body">
+	<div class="row">
+	 <div class="col-md-6">
+	  <div class="form-group">
+	   <label>@localizer["Case Type"]</label>
+	   <select class="form-control select2" name="ddlCaseType" style="width: 100%;" id="ddlCaseType">
+	   </select>
+	  </div>
+	 </div>
+	 <div class="col-md-6">
+	  <div class="form-group">
+	   <div class="form-group">
+		<label>@localizer["Crime Head Name"]</label>
+		<input type="text" class="form-control" id="txtheadname">
+	   </div>
+	  </div>
+	 </div>
+	 <div class="col-md-6">
+	  <div class="form-group">
+	   <label>@localizer["Head Type Name"]</label>
+	   <select class="form-control select2" name="ddlHeadTypeName" style="width: 100%;" id="ddlHeadTypeName" onchange="ChangeHeadTypefunc(value)">
+	   </select>
+	  </div>
+	 </div>
+	 <!--<div class="col-12 col-sm-5" id="typevalue">
+	   <div class="form-group">
+		<label>Head Type Value</label>
+		<div class="select2-purple">
+	  <select id="ddlheadtypevalue" class="select2" multiple="multiple" data-placeholder="Select a Type Value" data-dropdown-css-class="select2-purple" style="width: 100%;">
+					@* <option>Alabama</option>
+						<option>Alaska</option>
+						<option>California</option>
+						<option>Delaware</option>
+						<option>Tennessee</option>
+						<option>Texas</option>
+						<option>Washington</option>*@
+	  </select>
+		</div>
+	   </div>
+	  </div>
+	  <div class="col-12 col-sm-1">
+	   <label><span style="color:white">.</span></label>
+	   <div class="input-group-append">
+		<a class="input-group-text" data-widget="control-sidebar" data-slide="true" href="#" role="button">
+	  <i class="fas fa-plus"></i>
+		</a>
+
+
+	   </div>
+	  </div>-->
+	 <!-- /.row -->
+	</div>
+	<!-- /.card-body -->
+	<div class="card-footer">
+	 <button type="button" id="btnsubmit" class="float-right btn btn-success" onclick="submitfunc()">@localizer["Submit"]</button>
+	</div>
+
+   </div>
+   <!-- /.card -->
+
+  </div>
+  <!-- /.container-fluid -->
+  <!-- <aside id="disside" class="control-sidebar control-sidebar-dark" style="display: block;">
+
+   <div class="p-3 control-sidebar-content" style="">
+	<div class="card-header">
+	 <h2 class="card-title">@localizer["Add Crime Head"]</h2>
+
+	 <div class="card-tools">
+   <button type="button" class="btn btn-tool" onclick="cancelfunc()" data-card-widget="remove">
+	<i class="fas fa-times"></i>
+   </button>
+	 </div>
+	</div><hr class="mb-2">
+	<h6>Head Type Name</h6>
+	<div class="mb-1"><input type="text" class="form-control" id="txtvaluename"></div><hr class="mb-1">
+	<h6>Value Name</h6>
+	<div class="mb-1"><input type="text" class="form-control" id="txtvaluename"></div><hr class="mb-2">
+	<div class="mb-1"><button type="button" id="btnsubmitvalue" class="float-center btn btn-success" onclick="submitfunc()">@localizer["Submit"]</button></div>
+   </div>
+
+  </aside>-->
+</section>
+<!-- /.content -->
+@section Scripts {
+
+
+<script>
+
+		const urlSearchParams = new URLSearchParams(window.location.search);
+		const params = Object.fromEntries(urlSearchParams.entries());
+		var paramId = params.Id;
+		var x = document.getElementById("disside");
+		//var y = document.getElementById("typevalue");
+
+	$(document).ready(function () {
+
+		//y.style.display = "block";
+
+		$('.select2').select2();
+
+		if(paramId != undefined)
+		{
+		viewfunc();
+		}
+		else{paramId = 0;}
+
+
+
+		GETMSTCrimeType();
+		GETMSTCrimeHeadType()
+		//dynamic(data);
+
+	});
+	/*
+	function ChangeHeadTypefunc(idno){
+		if(idno == 2 || idno == 4){
+			//alert(idno);
+		document.getElementById("ddlheadtypevalue").innerHTML  = "";
+		//$("#ddlheadtypevalue").remove();
+	$.ajax({
+			type: "POST",
+			url: 'GETMSTHeadTypeValueName',
+			data: {
+				"id": idno
+			},
+			cache: false,
+			type: "POST",
+			success: function (response) {
+
+				var ddlheadtypevalue = document.getElementById('ddlheadtypevalue');
+				//ddlheadtypevalue.options.add(new Option('Select Case Type', '0'));
+
+				for (var j = 0; j < response.length; j++) {
+
+					ddlheadtypevalue.options.add(new Option(response[j].name, response[j].id));
+				}
+
+				$("#ddlheadtypevalue").select2({
+			//placeholder: 'Select Case Type',
+					allowClear: true,
+					width: "100%"
+					});
+
+				// if(paramId != 0)
+				//viewfunc();
+			},
+			error: function (xhr, status, error) {
+				// var err = eval("(" + xhr.responseText + ")");
+				console.log(xhr.responseText);
+			}
+		});
+		}
+	}
+	*/
+	function viewfunc(){
+	$.ajax({
+			url: "GetMSTCrimeHeadAll",
+			data: {
+				"id": paramId
+			},
+			cache: false,
+			type: "POST",
+			success: function (response) {
+			//alert(response[0].crimeName);
+			$("#txtheadname").val(response[0].crimeHeadName);
+
+			$('select[name="ddlCaseType"]').find('option[value="'+response[0].mstCrimeTypeID+'"]').attr("selected",true);
+			$("#ddlCaseType").select2({
+			//placeholder: 'Select Case Type',
+			allowClear: true,
+			width: "100%"
+		});
+			//$("#ddlCaseType").val("3").attr("selected","selected");
+			//$("#ddlCaseType").val('3');
+			//document.getElementById("ddlCaseType").value = response[0].mstCrimeTypeID;
+			$('select[name="ddlHeadTypeName"]').find('option[value="'+response[0].mstCrimeHeadTypeID+'"]').attr("selected",true);
+			$("#ddlHeadTypeName").select2({
+			//placeholder: 'Select Case Type',
+			allowClear: true,
+			width: "100%"
+		});
+			//document.getElementById("ddlHeadTypeName").value = response[0].mstcrimeHeadTypeID;
+				//document.getElementById("txtcrimetypename").value(response[0].crimeName)
+			},
+			error: function (xhr, status, error) {
+				// var err = eval("(" + xhr.responseText + ")");
+				console.log(xhr.responseText);
+			}
+		});
+
+	}
+	function cancelfunc(){
+		x.style.display = "none";
+	}
+	function GETMSTCrimeType() {
+		$.ajax({
+			type: "POST",
+			url: 'GETMSTCrimeType',
+			dataSrc: '',
+			success: function (response) {
+				var ddlCaseType = document.getElementById('ddlCaseType');
+				ddlCaseType.options.add(new Option('Select Case Type', '0'));
+				for (var j = 0; j < response.length; j++) {
+
+					ddlCaseType.options.add(new Option(response[j].crimeName, response[j].id));
+				}
+				$("#ddlCaseType").select2({
+			//placeholder: 'Select Case Type',
+			allowClear: true,
+			width: "100%"
+		});
+
+				 if(paramId != 0)
+				viewfunc();
+			},
+			error: function (xhr, status, error) {
+				// var err = eval("(" + xhr.responseText + ")");
+				console.log(xhr.responseText);
+			}
+		});
+	}
+	function GETMSTCrimeHeadType() {
+		$.ajax({
+			type: "POST",
+			url: 'GETMSTCrimeHeadType',
+			dataSrc: '',
+			success: function (response) {
+				var ddlCaseType = document.getElementById('ddlHeadTypeName');
+				ddlCaseType.options.add(new Option('Select Head Type', '0'));
+				for (var j = 0; j < response.length; j++) {
+
+					ddlCaseType.options.add(new Option(response[j].name, response[j].id));
+				}
+				$("#ddlHeadTypeName").select2({
+			//placeholder: 'Select Case Type',
+			allowClear: true,
+			width: "100%"
+		});
+			},
+			error: function (xhr, status, error) {
+				// var err = eval("(" + xhr.responseText + ")");
+				console.log(xhr.responseText);
+			}
+		});
+	}
+
+	function submitfunc() {
+		//alert('hi');
+
+		$.ajax({
+			url: "InsertMSTCrimeHeadType",
+			data: {
+				"id":paramId,
+				"MSTCrimeTypeID": document.getElementById("ddlCaseType").value,
+				"CrimeHeadName": document.getElementById("txtheadname").value,
+				"MSTCrimeHeadTypeID": document.getElementById("ddlHeadTypeName").value
+			},
+			cache: false,
+			type: "POST",
+			success: function (response) {
+				if(response == 1){
+				toastr.success('Record is Added');
+
+				 document.getElementById("txtheadname").value="";
+				 document. getElementById('ddlCaseType').selectedIndex = "0";
+				 document. getElementById('ddlHeadTypeName').selectedIndex = "0";
+
+				if(paramId != 0)
+				redirectfunc();
+				//alert("Case Added ");
+				}
+				else{
+					toastr.error('Record is not Added');
+					//alert("Record is not Deleted");
+					}
+
+			},
+			error: function (xhr, status, error) {
+				// var err = eval("(" + xhr.responseText + ")");
+				console.log(xhr.responseText);
+			}
+		});
+	}
+	function redirectfunc(){
+		window.location.replace('/Crime/ViewCrimeHead');
+	}
+</script>
+}
+
+
+
+

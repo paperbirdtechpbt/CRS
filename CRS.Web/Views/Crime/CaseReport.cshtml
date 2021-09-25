@@ -1,0 +1,371 @@
+﻿@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer localizer
+@{
+	ViewData["Title"] = @localizer["Case Reports"];
+
+}
+
+<!-- Content Header (Page header) -->
+<section class="content-header">
+
+ <div class="container-fluid">
+  <div class="row mb-2">
+   <div class="col-sm-6">
+	<h1>@localizer["Case Details"]</h1>
+   </div>
+   <div class="col-sm-6">
+	<ol class="breadcrumb float-sm-right">
+	 <li class="breadcrumb-item"><a href="#">@localizer["Home"]</a></li>
+	 <li class="breadcrumb-item active">@localizer["Case Report"]</li>
+	</ol>
+   </div>
+  </div>
+ </div><!-- /.container-fluid -->
+</section>
+
+<!-- Main content -->
+<section class="content">
+
+ <div class="container-fluid">
+
+  <div class="card">
+	  
+   <div class="card-header">
+	<h3 class="card-title">@localizer["Add Crime Head"]</h3>
+
+				@*<div class="card-tools">
+					<button type="button" class="btn btn-tool" onclick="redirectfunc()" data-card-widget="remove">
+					<i class="fas fa-times"></i>
+					</button>
+					</div>*@
+   </div>
+   <!-- /.card-header -->
+   <div class="card-body">
+	<div class="row">
+	 <div class="col-md-4">
+	  <div class="form-group">
+	   <label>@localizer["Case Type"]</label>
+	   <select class="form-control select2" name="ddlCaseType" style="width: 100%;" id="ddlCaseType">
+	   </select>
+	  </div>
+	 </div>
+	 <div class="col-md-4">
+
+	  <!-- Date range -->
+	  <div class="form-group">
+	   <label>@localizer["Date range:"]</label>
+
+	   <div class="input-group">
+		<div class="input-group-prepend">
+		 <span class="input-group-text">
+		  <i class="far fa-calendar-alt"></i>
+		 </span>
+		</div>
+		<input type="text" class="form-control float-right" id="reservation">
+	   </div>
+	   <!-- /.input group -->
+	  </div>
+	  <!-- /.form group -->
+	  <!-- Date and time range -->
+	 </div>
+	 <div class="col-md-4">
+	  <div class="form-group">
+	   <label> </label>
+	   <div class="form-group">
+		<button type="button" id="btnsubmit" class="float-left btn btn-success" onclick="submitfunc()">@localizer["Submit"]</button>
+	   </div>
+	  </div>
+	 </div>
+	</div>
+	<!-- /.row -->
+	
+   </div>
+    <div class="overlay" id="overlay"><i class="fas fa-2x fa-sync-alt fa-spin"></i></div>
+   <!-- /.card-body -->
+   <div class="card-footer">
+   </div>
+   
+  </div>
+
+ </div>
+ <div class="container-fluid">
+
+  <div class="card card-default">
+
+   <div class="card-body">
+	<div class="row">
+	 <div class="col-md-12" id="table1">
+	  <table id="example1" class="table table-bordered table-striped">
+	  </table>
+	 </div>
+	</div>
+	<!-- /.row -->
+   </div>
+
+  </div>
+
+ </div>
+ <!-- /.container-fluid -->
+</section>
+<!-- /.content -->
+@section Scripts {
+
+<script>
+var x = document.getElementById("overlay");
+	var tabledata;
+	var qutlength=0;
+				$(document).ready(function () {
+					//alert('hi');
+					
+					//Date range picker
+					//$('#reservation').daterangepicker()
+
+					//create a new date range picker
+					$('#reservation').daterangepicker({ startDate: '09/01/2021', endDate: '09/20/2021' });
+
+					$("#ddlCaseType").select2({
+					//placeholder: 'Select Case Type',
+					allowClear: true,
+					width: "100%"
+				});
+
+					GETMSTCrimeType();
+				});
+
+		function GETMSTCrimeType() {
+				$.ajax({
+					type: "POST",
+					url: 'GETMSTCrimeType',
+					dataSrc: '',
+					success: function (response) {
+						var ddlCaseType = document.getElementById('ddlCaseType');
+						ddlCaseType.options.add(new Option('Select Case Type', '0'));
+						for (var j = 0; j < response.length; j++) {
+
+							ddlCaseType.options.add(new Option(response[j].crimeName, response[j].id));
+						}
+						x.style.display = "none";
+						
+					},
+					error: function (xhr, status, error) {
+						// var err = eval("(" + xhr.responseText + ")");
+						console.log(xhr.responseText);
+					}
+				});
+			}
+
+			function submitfunc()
+			{
+				//$('#example1').DataTable().clear().destroy();
+				//var Table = document.getElementById("example1");
+				//Table.innerHTML = "";
+				//$("#example1 tr").remove(); 
+				//$('#example1').DataTable().clear();
+				//$('#example1').DataTable().ajax.reload(); 
+				//$("#example1").dataTable().fnDestroy();
+				x.style.display = "block";
+				tabledata="";
+				//$('#example1').DataTable().clear().destroy();
+			document.getElementById("example1").innerHTML = "";
+			//$('#example1').DataTable().ajax.reload();
+			//$('#example1 tbody').empty();
+			/*table = $('#example1').DataTable( {
+						paging: false
+					} );
+
+					table.destroy();
+
+					table = $('#example1').DataTable( {
+						searching: false
+					} );*/
+
+			var ddlCaseType = document.getElementById("ddlCaseType").value;
+			var datevalue = document.getElementById("reservation").value;
+			var arr = datevalue.split('-');
+			var startdate = arr[0];
+			var enddate = arr[1];
+
+			GetHeadData(ddlCaseType,startdate,enddate);
+			
+
+			//alert(ddlCaseType);
+			//alert(startdate);
+			//alert(enddate);
+
+				}
+				function GetHeadData(ddlCaseType,startdate,enddate)
+				{
+				$.ajax({
+					type: "POST",
+					data: {
+						"id": ddlCaseType
+					},
+					url: 'GetMSTCrimeHead',
+					dataSrc: '',
+					success: function (response) {
+
+						qutlength = response.length;
+
+						tabledata += '<thead><tr>';
+						tabledata += '<th>Sr No.</th>';
+						for (var i = 0; i < response.length; i++) {
+						   tabledata += '<th>' + response[i].crimeHeadName + '</th>';
+						}
+
+						tabledata += '</tr></thead>';
+						GetTbodyData(ddlCaseType,startdate,enddate);
+
+					},
+					error: function (xhr, status, error) {
+						// var err = eval("(" + xhr.responseText + ")");
+						console.log(xhr.responseText);
+					}
+					});
+				}
+				function GetTbodyData(ddlCaseType,startdate,enddate)
+				{
+					try{
+				$.ajax({
+					type: "POST",
+					data: {
+						"crimetype": ddlCaseType,
+						"startdate": startdate,
+						"enddate": enddate
+					},
+					url: 'GetCrimeTypeReports',
+					dataSrc: '',
+					success: function (response) {
+					//alert(response);
+					tabledata += '<tbody>';
+					//var ddlCaseType = document.getElementById('ddlCaseType');
+					var j=0;
+					for (var i = 0; i < response.length; i++) {
+						j++;
+						tabledata += '<tr>';
+						if(qutlength == 1){
+						tabledata += '<td>' + j + '</td>';
+						tabledata += '<td>' + response[i].q1 + '</td>';
+
+						}
+						if(qutlength == 2){
+						tabledata += '<td>' + j + '</td>';
+						tabledata += '<td>' + response[i].q1 + '</td>';
+						tabledata += '<td>' + response[i].q2 + '</td>';
+
+						}
+						if(qutlength == 3){
+						tabledata += '<td>' + j + '</td>';
+						tabledata += '<td>' + response[i].q1 + '</td>';
+						tabledata += '<td>' + response[i].q2 + '</td>';
+						tabledata += '<td>' + response[i].q3 + '</td>';
+
+						}
+						if(qutlength == 4){
+						tabledata += '<td>' + j + '</td>';
+						tabledata += '<td>' + response[i].q1 + '</td>';
+						tabledata += '<td>' + response[i].q2 + '</td>';
+						tabledata += '<td>' + response[i].q3 + '</td>';
+						tabledata += '<td>' + response[i].q4 + '</td>';
+
+						}
+						if(qutlength == 5){
+						tabledata += '<td>' + j + '</td>';
+						tabledata += '<td>' + response[i].q1 + '</td>';
+						tabledata += '<td>' + response[i].q2 + '</td>';
+						tabledata += '<td>' + response[i].q3 + '</td>';
+						tabledata += '<td>' + response[i].q4 + '</td>';
+						tabledata += '<td>' + response[i].q5 + '</td>';
+
+						}
+						if(qutlength == 6){
+						tabledata += '<td>' + j + '</td>';
+						tabledata += '<td>' + response[i].q1 + '</td>';
+						tabledata += '<td>' + response[i].q2 + '</td>';
+						tabledata += '<td>' + response[i].q3 + '</td>';
+						tabledata += '<td>' + response[i].q4 + '</td>';
+						tabledata += '<td>' + response[i].q5 + '</td>';
+						tabledata += '<td>' + response[i].q6 + '</td>';
+
+						}
+						if(qutlength == 7){
+						tabledata += '<td>' + j + '</td>';
+						tabledata += '<td>' + response[i].q1 + '</td>';
+						tabledata += '<td>' + response[i].q2 + '</td>';
+						tabledata += '<td>' + response[i].q3 + '</td>';
+						tabledata += '<td>' + response[i].q4 + '</td>';
+						tabledata += '<td>' + response[i].q5 + '</td>';
+						tabledata += '<td>' + response[i].q6 + '</td>';
+						tabledata += '<td>' + response[i].q7 + '</td>';
+
+						}
+						if(qutlength == 8){
+						tabledata += '<td>' + j + '</td>';
+						tabledata += '<td>' + response[i].q1 + '</td>';
+						tabledata += '<td>' + response[i].q2 + '</td>';
+						tabledata += '<td>' + response[i].q3 + '</td>';
+						tabledata += '<td>' + response[i].q4 + '</td>';
+						tabledata += '<td>' + response[i].q5 + '</td>';
+						tabledata += '<td>' + response[i].q6 + '</td>';
+						tabledata += '<td>' + response[i].q7 + '</td>';
+						tabledata += '<td>' + response[i].q8 + '</td>';
+
+						}
+						if(qutlength == 9){
+						tabledata += '<td>' + j + '</td>';
+						tabledata += '<td>' + response[i].q1 + '</td>';
+						tabledata += '<td>' + response[i].q2 + '</td>';
+						tabledata += '<td>' + response[i].q3 + '</td>';
+						tabledata += '<td>' + response[i].q4 + '</td>';
+						tabledata += '<td>' + response[i].q5 + '</td>';
+						tabledata += '<td>' + response[i].q6 + '</td>';
+						tabledata += '<td>' + response[i].q7 + '</td>';
+						tabledata += '<td>' + response[i].q8 + '</td>';
+						tabledata += '<td>' + response[i].q9 + '</td>';
+
+						}
+						if(qutlength == 10){
+						tabledata += '<td>' + j + '</td>';
+						tabledata += '<td>' + response[i].q1 + '</td>';
+						tabledata += '<td>' + response[i].q2 + '</td>';
+						tabledata += '<td>' + response[i].q3 + '</td>';
+						tabledata += '<td>' + response[i].q4 + '</td>';
+						tabledata += '<td>' + response[i].q5 + '</td>';
+						tabledata += '<td>' + response[i].q6 + '</td>';
+						tabledata += '<td>' + response[i].q7 + '</td>';
+						tabledata += '<td>' + response[i].q8 + '</td>';
+						tabledata += '<td>' + response[i].q9 + '</td>';
+						tabledata += '<td>' + response[i].q10 + '</td>';
+						}
+
+						tabledata += '</tr>';
+					}
+
+					tabledata += '</tbody>';
+					$("#example1").append(tabledata);
+					try{
+					$("#example1").DataTable({
+						//dom: 'Bfrtip',
+                        retrieve: true,					
+						"language": { "emptyTable": '@localizer["No data available in tablesd"]',"zeroRecords": '@localizer["No matching records found"]', "search": '@localizer["search:"]',"info": '@localizer["Showing"] _START_ @localizer["to"] _END_ @localizer["of"]  _TOTAL_ @localizer["entries"]',paginate: { next: '@localizer["Next"]', previous: '@localizer["Previous"]' } },
+						"responsive": false, "lengthChange": false, "autoWidth": false,
+						"buttons": [{ extend: "copy", text: '@localizer["Copy"]' }, { extend: "csv", text: '@localizer["CSV"]' }, { extend: "pdf", text: '@localizer["PDF"]' }, { extend: "print", text: '@localizer["Print"]' }, { extend: "colvis", text: '@localizer["Column visibility"]' },{extend: 'excelHtml5',
+									title: 'Monthly Return on "'+$("#ddlCaseType option:selected").text()+'" : '+startdate +' - '+ enddate +'',
+									text:'@localizer["Excel"]',
+									titleAttr: 'Export Excel'}]
+					}).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+					}catch(e){alert(e);}
+					x.style.display = "none";
+					},
+					error: function (xhr, status, error) {
+						// var err = eval("(" + xhr.responseText + ")");
+						console.log(xhr.responseText);
+					}
+					});
+
+					}catch(e){alert(e);}
+				}
+</script>
+}
+
+
+
+

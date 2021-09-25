@@ -1,0 +1,176 @@
+﻿@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer localizer
+@{
+	ViewData["Title"] = @localizer["Crime Type Details"];
+
+}
+
+<!-- Content Header (Page header) -->
+<section class="content-header">
+
+ <div class="container-fluid">
+  <div class="row mb-2">
+   <div class="col-sm-6">
+	<h1>@localizer["Crime Type Details"]</h1>
+   </div>
+   <div class="col-sm-6">
+	<ol class="breadcrumb float-sm-right">
+	 <li class="breadcrumb-item"><a href="#">@localizer["Home"]</a></li>
+	 <li class="breadcrumb-item active">@localizer["Crime Type Details"]</li>
+	</ol>
+   </div>
+  </div>
+ </div><!-- /.container-fluid -->
+</section>
+
+<!-- Main content -->
+<section class="content">
+
+ <div class="container-fluid">
+  <div class="card">
+   <div class="card-header">
+	<h3 class="card-title">@localizer["All Crime Type Data"]</h3>
+	<button type="button" class="float-right btn btn-success" onclick="redirect()">@localizer["Add Crime Type"]</button>
+   </div>
+   <!-- /.card-header -->
+   <div class="card-body">
+	<table id="example1" class="table table-bordered table-striped">
+	</table>
+   </div>
+   <div class="overlay" id="overlay"><i class="fas fa-2x fa-sync-alt fa-spin"></i></div>
+  </div>
+ </div>
+ <!-- /.container-fluid -->
+</section>
+<!-- /.content -->
+@section Scripts {
+
+<script>
+	var x = document.getElementById("overlay");
+		function redirect() {
+			window.location.replace('/Crime/AddCrimeType');
+		}
+
+		$(document).ready(function () {
+
+			//alert('hi');
+			GetCrimeTypeData();
+		});
+
+		function GetCrimeTypeData() {
+
+			document.getElementById("example1").innerHTML = '';
+
+			$.ajax({
+				
+				type: "POST",
+				data: {
+					"id": "0"
+					  },
+				url: 'GetCrimeTypeData',
+				dataSrc: '',
+				success: function (response) {
+					var j = 0;
+					var tabledata;
+					tabledata += '<thead><tr>';
+					tabledata += '<th>@localizer["Sr. No"]</th>';
+					tabledata += '<th>@localizer["Crime Type"]</th>';
+					tabledata += '<th>@localizer["Create By"]</th>';
+					tabledata += '<th>@localizer["Create Date"]</th>';
+					tabledata += '<th>@localizer["Action"]</th>';
+					tabledata += '</tr></thead>';
+
+					tabledata += '<tbody>';
+					//var ddlCaseType = document.getElementById('ddlCaseType');
+					for (var i = 0; i < response.length; i++) {
+						j++;
+						tabledata += '<tr>';
+						tabledata += '<td>' + j + '</td>';
+						tabledata += '<td>' + response[i].crimeName + '</td>';
+						tabledata += '<td>' + response[i].createdBy + '</td>';
+						tabledata += '<td>' + response[i].createdOn + '</td>';
+
+						tabledata += '<td><button type="button" class="btn btn-default btn-sm" onclick="Actionfunc(' + response[i].id + ',2)"><i class="nav-icon fas fa-edit"></i></button><button type="button" class="btn btn-default btn-sm" onclick="Actionfunc(' + response[i].id + ',3)"><i class="far fa-trash-alt"></i></button></td>';
+						tabledata += '</tr>';
+					}
+					tabledata += '</tbody>';
+
+					tabledata += '<tfoot><tr>';
+					tabledata += '<th>@localizer["Sr. No"]</th>';
+					tabledata += '<th>@localizer["Crime Type"]</th>';
+					tabledata += '<th>@localizer["Create By"]</th>';
+					tabledata += '<th>@localizer["Create Date"]</th>';
+					tabledata += '<th>@localizer["Action"]</th>';
+
+					tabledata += '</tr></tfoot>';
+					$("#example1").append(tabledata);
+
+					$("#example1").DataTable({
+						"bDestroy": true,
+						"language": { "emptyTable": '@localizer["No data available in tablesd"]',"zeroRecords": '@localizer["No matching records found"]', "search": '@localizer["search:"]',"info": '@localizer["Showing"] _START_ @localizer["to"] _END_ @localizer["of"]  _TOTAL_ @localizer["entries"]',paginate: { next: '@localizer["Next"]', previous: '@localizer["Previous"]' } },
+						"responsive": true, "lengthChange": false, "autoWidth": false,
+						"buttons": [{ extend: "copy", text: '@localizer["Copy"]' }, { extend: "csv", text: '@localizer["CSV"]' }, { extend: "excel", text: '@localizer["Excel"]' }, { extend: "pdf", text: '@localizer["PDF"]' }, { extend: "print", text: '@localizer["Print"]' }, { extend: "colvis", text: '@localizer["Column visibility"]' }]
+					}).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+
+
+					 x.style.display = "none";
+				},
+				error: function (xhr, status, error) {
+					// var err = eval("(" + xhr.responseText + ")");
+					console.log(xhr.responseText);
+				}
+			});
+		}
+
+		function Actionfunc(id,type) {
+
+			if(type==2){
+
+				window.location.replace('/Crime/AddCrimeType?Id='+ id +'');
+
+			}
+			//for delete data
+			if(type==3){
+					  var txt;
+					  var r = confirm("Are you sure for delete!!");
+					  
+					  if (r == true) {
+						$.ajax({
+								type: "POST",
+								data: {
+									"id": id
+								},
+								url: 'DeleteMSTCrimeType',
+								dataSrc: '',
+								success: function (response) {
+
+								if(response == 1)
+								{
+									toastr.success('Record is Deleted');
+									GetCaseData();
+								}
+								else{
+
+									toastr.success('Record is not Deleted');
+								}
+
+								},
+								error: function (xhr, status, error) {
+									// var err = eval("(" + xhr.responseText + ")");
+									console.log(xhr.responseText);
+								}
+							});
+
+					  } else {
+						txt = "You pressed Cancel!";
+					  }
+			//alert(type);
+			}
+		//alert(id);
+		//alert(type);
+		}
+</script>
+}
+
+
+
+
